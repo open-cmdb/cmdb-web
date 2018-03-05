@@ -29,7 +29,7 @@
         <el-button id="submit" style="width: 140px" @click="on_search()" slot="append" icon="el-icon-search"></el-button>
       </el-autocomplete>
     </div>
-    <div style="border: 1px #DCDFE6 solid; margin: 10px 0px; width: 100%; overflow-x: auto">
+    <div style="border: 1px #DCDFE6 solid; margin: 10px 0px">
       <data-item v-for="item in data" :data="item" :key="item._id" @keyup.ctrl.73="on_ctrl_i" v-on:delete_data="delete_data"></data-item>
     </div>
     <el-pagination
@@ -118,7 +118,7 @@
         }
       },
       get_history(){
-        var all_history = JSON.parse(localStorage.getItem("history"))
+        var all_history = JSON.parse(localStorage.getItem("deleted-history"))
         if(all_history){
           var username = this.$store.state.username
           if(!username){
@@ -131,12 +131,12 @@
       },
       save_history(){
         this.all_history[this.username] = this.history.splice(0, 100)
-        localStorage.setItem("history", JSON.stringify(this.all_history))
+        localStorage.setItem("deleted-history", JSON.stringify(this.all_history))
       },
       add_data(table){
         console.log("table:", table)
       },
-      search_data(indices, query, page, page_size, reset_page=false, succeeded_callback=null){
+      search_data(indices, query, page, page_size, reset_page=false){
         if(this.last_source){
           // this.last_source.cancel()
         }
@@ -144,16 +144,13 @@
         this.last_source = source
         var self = this
         this.search_input_icon = "el-icon-loading"
-        master.post("search/data", {indices, query, page, page_size}).then((response)=>{
+        master.post("search/deleted-data", {indices, query, page, page_size}, {cancelToken: source.token}).then((response)=>{
           self.data = response.data["hits"]
           this.total_num = response.data["total"]
           this.search_input_icon = "el-icon-edit"
           this.page_num = Math.ceil(response.data.total/this.page_size)
           if(reset_page){
             this.current_page = 1
-          }
-          if(succeeded_callback){
-            succeeded_callback()
           }
         }).catch((error)=>{
           console.log("error:", error)
@@ -165,10 +162,6 @@
         })
       },
       on_search(){
-        const succeeded_callback = ()=> {
-          this.current_query = this.query
-          this.current_indices = this.indices
-        }
         if(this.current_query == this.query && this.current_indices == this.indices){
           this.$message.warning("重复搜索")
           return
@@ -180,12 +173,13 @@
         if(!this.history.includes(this.query)){
           this.history.unshift(this.query)
         }
+        this.current_query = this.query
+        this.current_indices = this.indices
         this.page = 1
-        this.search_data(this.indices, this.query, 1, this.page_size, true, succeeded_callback)
+        this.search_data(this.current_indices, this.current_query, 1, this.page_size, true)
         document.getElementById("submit").focus()
       },
       on_page_change(val){
-        console.log("val:", val)
         this.current_page = val
         this.search_data(this.current_indices, this.current_query, val, this.page_size)
       },

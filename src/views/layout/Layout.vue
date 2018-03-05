@@ -1,16 +1,11 @@
 <template>
   <el-container style="height: 100%">
-    <el-aside width="240px;" style="height: 100%; overflow: hidden">
-      <c-aside></c-aside>
-    </el-aside>
-    <el-container>
-      <el-header>
-        <c-header></c-header>
-      </el-header>
-      <el-main>
-        <router-view></router-view>
-      </el-main>
-    </el-container>
+    <el-header style="padding: 0px; height: 63px">
+      <c-header></c-header>
+    </el-header>
+    <el-main style="padding: 10px">
+      <router-view></router-view>
+    </el-main>
   </el-container>
 </template>
 

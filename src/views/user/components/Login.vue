@@ -14,10 +14,25 @@
         <!--<el-button @click="do_reset()">重置</el-button>-->
       </el-form-item>
     </el-form>
+    <div>
+      <el-popover
+        ref="no_account"
+        placement="top"
+        width="160"
+        v-model="visible">
+        <p>请联系CMDB管理员创建</p>
+        <div style="text-align: right; margin: 0">
+          <el-button type="primary" size="mini" @click="visible=false">确定</el-button>
+        </div>
+      </el-popover>
+      <el-button type="text" style="float: left" v-popover:no_account>没有账号</el-button>
+      <el-button type="text" style="float: right" @click="on_reset_password">忘记密码</el-button>
+    </div>
   </el-card>
 </template>
 
 <script>
+  import Vue from "vue"
   import ElCard from "element-ui/packages/card/src/main";
   import master from "@/api/"
 
@@ -44,7 +59,8 @@
           password: "",
           non_field_errors: ""
         },
-        boolll: false
+        boolll: false,
+        visible: false
       }
     },
     methods: {
@@ -80,6 +96,12 @@
       },
       do_reset(){
         this.$refs["form_data"].resetFields()
+      },
+      on_reset_password(){
+        var Comp = Vue.component("ResetPassword")
+        var vm = new Comp()
+        vm.$mount()
+        this.$el.appendChild(vm.$el)
       }
     }
   }

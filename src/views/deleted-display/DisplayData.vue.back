@@ -1,0 +1,142 @@
+<template>
+  <div>
+    <div style="">
+      <el-input :suffix-icon="search_input_icon" @keyup.enter.native="on_search()" placeholder="示例：(hostname:huawei* AND price:[20000 TO 40000]) 更多请参阅Lucene语法" v-model="query" class="input-with-select">
+        <el-select v-model="indices" style="width: 190px" slot="prepend" multiple filterable  default-first-option placeholder="选择表 默认：all">
+          <el-option
+            style="padding: 10px; display: flex; align-items: center; justify-content: space-between"
+            v-for="item in tables"
+            :key="item.id"
+            :label="item.name"
+            :value="item.name">
+            <span>{{ item.name }}</span>
+            <div>
+              <el-button style="padding: 0px" icon="el-icon-circle-plus" @click.stop="on_add_data(item)"></el-button>
+              <el-button style="padding: 0px" icon="el-icon-info" @click.stop="on_show_info(item)"></el-button>
+            </div>
+          </el-option>
+        </el-select>
+        <el-button style="width: 140px" @click="on_search()" slot="append" icon="el-icon-search"></el-button>
+      </el-input>
+    </div>
+    <div style="border: 1px #DCDFE6 solid; margin: 10px 0px">
+      <data-item v-for="item in data" :data="item" :key="item._id" v-on:delete_data="delete_data"></data-item>
+    </div>
+    <el-pagination
+      style="float: right; margin-right: 100px;"
+      background
+      layout="total, prev, pager, next"
+      :page-size="size"
+      :total="total_num"
+      :current-page.sync="current_page"
+      @current-change="on_page_change">
+    </el-pagination>
+  </div>
+</template>
+
+<script>
+  import Vue from "vue"
+  import DataItem from "./components/DataItem.vue"
+  import master from "@/api"
+  import axios from "axios"
+
+  export default {
+    name: "DisplayData",
+    components: {
+      DataItem
+    },
+    data: ()=>{
+      return {
+        data: [],
+        query: "",
+        tables: [],
+        current_query: "*",
+        indices: [],
+        current_indices: [],
+        offset: 0,
+        size: 0,
+        last_source: null,
+        search_input_icon: "el-icon-edit",
+        page_num: 0,
+        current_page: 1,
+        total_num: 0
+      }
+    },
+    mounted(){
+      var size = Math.floor((window.innerHeight - 170) / 44)
+      this.size = size>8 ? size: 8
+      var self = this
+      master.get("mgmt/table").then((response) => {
+        self.tables = response["data"]
+        console.log(response)
+      }).catch((error)=>{
+
+      })
+      this.search_data([], "*", 0, this.size)
+    },
+    methods: {
+      add_data(table){
+        console.log("table:", table)
+      },
+      search_data(indices, query, offset, size, reset_page=false){
+        if(this.last_source){
+          // this.last_source.cancel()
+        }
+        var source = axios.CancelToken.source()
+        this.last_source = source
+        var self = this
+        this.search_input_icon = "el-icon-loading"
+        master.post("search/deleted-data", {indices, query, offset, size}, {cancelToken: source.token}).then((response)=>{
+          self.data = response.data["hits"]
+          this.total_num = response.data["total"]
+          this.search_input_icon = "el-icon-edit"
+          this.page_num = Math.ceil(response.data.total/this.size)
+          if(reset_page){
+            this.current_page = 1
+          }
+        }).catch((error)=>{
+          console.log("error:", error)
+          this.search_input_icon = "el-icon-edit"
+          if(error.response && error.response.data){
+            self.$message.error(JSON.stringify(error.response.data))
+          }
+          console.log("error message: ", error.message)
+        })
+      },
+      on_search(){
+        if(this.current_query == this.query && this.current_indices == this.indices){
+          this.$message.warning("重复搜索")
+          return
+        }
+        if(this.query == ""){
+          this.query = "*"
+        }
+        this.current_query = this.query
+        this.current_indices = this.indices
+        this.offset = 0
+        this.search_data(this.current_indices, this.current_query, 0, this.size, true)
+      },
+      on_page_change(val){
+        console.log("val:", val)
+        this.current_page = val
+        this.search_data(this.current_indices, this.current_query, val*this.size, this.size)
+      },
+      delete_data(data){
+        this.data.splice(this.data.indexOf(data), 1)
+        this.total_num -= 1
+      },
+      on_add_data(table){
+        var AddData = Vue.component("AddData")
+        var vm = new AddData({propsData: {table_name: table.name}})
+        vm.$mount()
+        this.$el.appendChild(vm.$el)
+      },
+      on_show_info(table){
+        var ShowTable = Vue.component("ShowTable")
+        var vm = new ShowTable({propsData: {table}})
+        vm.$mount()
+        this.$el.appendChild(vm.$el)
+      }
+    }
+  }
+</script>
