@@ -1,0 +1,23 @@
+<template>
+  <div v-loading="true" element-loading-text="长时间没有跳转请联系tangmingming" style="height: 100%">
+  </div>
+</template>
+
+<script>
+  export default {
+    name: "login",
+    mounted(){
+      console.log("next:", this.$route.params.next)
+      this.$c_master.get("user/user/info").then((response)=>{
+        this.$store.state.user_info = response.data
+        this.$router.push({path: this.$store.state.next_path})
+      }).catch((error)=>{
+        console.log(error)
+      })
+    }
+  }
+</script>
+
+<style scoped>
+
+</style>

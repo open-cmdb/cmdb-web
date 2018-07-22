@@ -11,7 +11,11 @@
   },
   "dependencies": {
     "axios": "^0.17.1",
-    "element-ui": "^2.1.0",
+    "echarts": "^4.1.0",
+    "element-ui": "^2.4.4",
+    "font-awesome": "^4.7.0",
+    "moment": "^2.22.2",
+    "v-charts": "^1.17.8",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"

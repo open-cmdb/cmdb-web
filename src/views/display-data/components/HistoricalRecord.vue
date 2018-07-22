@@ -1,5 +1,5 @@
 <template>
-  <el-dialog width="900px" :title="`${data_index}\\${data_id} 历史版本`" :visible.sync="is_visible" @close="on_close">
+  <el-dialog width="1000px" :title="`${data_index} ${data_id} 历史版本`" :visible.sync="is_visible" @close="on_close">
     <el-table v-if="data.length > 0" :data="data" :max-height="max_height" stripe>
       <el-table-column prop="S-changer" label="修改者" fixed></el-table-column>
       <el-table-column prop="S-update-time" label="修改时间" fixed></el-table-column>

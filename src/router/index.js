@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
 import Login from "@/components/Login"
 
+import store from "../store"
 import app from "../main.js"
 
 const _import = require('./_import_' + process.env.NODE_ENV)
@@ -45,10 +46,11 @@ var router = new Router({
       path: '/',
       name: 'index',
       component: _import('layout/Layout'),
+      redirect: {name: "data"},
       children: [
         {
-          path: "",
-          name: "main",
+          path: "data",
+          name: "data",
           component: _import("display-data/DisplayData")
         },
         {
@@ -60,70 +62,45 @@ var router = new Router({
           path: "table",
           name: "table",
           component: _import("table-mgmt/TableMgmt")
-        },
-        {
-          path: "user",
-          name: "user",
-          component: _import("user-mgmt/UserMgmt")
         }
       ]
     },
     {
-      path: "/user",
-      component: _import("user/User"),
-      children: [
-        {
-          path: "login",
-          name: "login",
-          component: _import("user/components/Login")
-        }
-      ]
+      path: "/login",
+      name: "login",
+      component: _import("login/Login"),
     }
+    // {
+    //   path: "/user",
+    //   component: _import("user/User"),
+    //   children: [
+    //     {
+    //       path: "login",
+    //       name: "login",
+    //       component: _import("user/components/Login")
+    //     }
+    //   ]
+    // }
   ]
 })
 
 export default router
 
 router.beforeEach((to, from, next) => {
-  // console.log(to)
-  // console.log(from)
-  // console.log(next)
-  // if(!router.app.$store.state.is_logged){
-  //   console.log("new login")
-  //   login_vue = Login()
-  //   login_vue.$mount()
-  //   document.body.appendChild(login_vue.$el)
-  // }
-
-  // var Profile = Vue.extend({
-  //   template: '<p>{{firstName}} {{lastName}} aka {{alias}}</p>',
-  //   data: function () {
-  //     return {
-  //       firstName: 'Walter',
-  //       lastName: 'White',
-  //       alias: 'Heisenberg'
-  //     }
-  //   }
-  // })
-
-  // var Profile = Vue.extend(require("@/views/test/components/Dialog2.vue"))
-  //
-  // // console.log(Vue.component("el-dialog"))
-  //
-  // setTimeout(()=>{
-  //   var Dialog1 = Vue.component("dialog1")
-  //   var dialog = new Dialog1()
-  //   console.log("dialog", dialog)
-  //   dialog.$mount()
-  //   console.log(dialog.$el)
-  //   console.log(router.app.$el)
-  //   router.app.$el.appendChild(dialog.$el)
-  //   console.log("dialog parent:", dialog.$parent)
-  //   // setTimeout( () => {
-  //   //   router.app.$el.removeChild(dialog.$el)
-  //   //   dialog.$destroy()
-  //   //   console.log("dialog", dialog)
-  //   // }, 3000)
-  // }, 100)
-  next()
+  if (to.matched.length === 0) {                                                  //如果未匹配到路由
+    router.app.$message.warning("您访问的页面不存在 自动跳转到上一级")
+    from.name ? next({ name:from.name }) : next('/')                              //如果上级也未匹配到路由则跳转登录页面，如果上级能匹配到则转上级路由
+  }
+  else if(to.name && to.name.startsWith("test")){
+    next()
+  }
+  else if(to.name!="login" && !store.state.user_info.username){
+    store.state.next_path = to.fullPath
+    next({name: "login"})
+    return
+  } 
+  else {
+    store.commit("reset_canceltoken")                                             //取消当前所有访问
+    next()                                                                         //如果匹配到正确跳转
+  }
 })

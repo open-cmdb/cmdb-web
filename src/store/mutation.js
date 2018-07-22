@@ -1,3 +1,4 @@
+import axios from "axios"
 import cookie  from "./cookie"
 
 export function increment(state){
@@ -19,4 +20,9 @@ export const login = (state, data) => {
   state.is_logged = true
   state.token = "JWT "+data.token
   state.username = data.username
+}
+
+export function reset_canceltoken(state){
+  state.cancel_token.cancel("跳转取消")
+  state.cancel_token = axios.CancelToken.source()
 }
