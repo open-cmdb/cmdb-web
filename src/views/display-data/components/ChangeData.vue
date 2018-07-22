@@ -1,13 +1,13 @@
 <template>
   <el-dialog :title="`${data['_index']} ${data['_id']} 修改`" :visible.sync="is_visible" @close="on_close">
     <el-form label-width="100px" size="small" style="margin-right: 50px">
-      <el-form-item v-for="(v, k) in fields" v-if="k[0]!='S'" :key="k" :label="`${k}:`" :required="v.required" :error="(errors[k])?String(errors[k]):''">
+      <el-form-item v-for="(v, k) in fields" v-if="k[0]!='S'" :key="k" :label="`${k}:`" :required="v.required" :error="errors[k]|c_array_to_string">
         <c-select v-if="v.type=='list'" v-model="form_data[k]" :placeholder="v.label?v.lable:k+' | type:'+v.type+'/'+v.child.type" multiple filterable allow-create default-first-option remote style="width: 100%">
         </c-select>
         <el-input v-else v-model="form_data[k]" :placeholder="`${v.label?v.label:k} | ${v.type}`"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" style="width: 100%" @click="submit()">提交</el-button>
+        <el-button type="primary" style="width: 100%" @click="submit()" :loading="loading">提交</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -20,6 +20,7 @@ export default {
     console.log("this.props.data:", this.data);
     return {
       is_visible: true,
+      loading: false,
       form_data: JSON.parse(JSON.stringify(this.data._source)),
       fields: [],
       errors: {}
@@ -49,24 +50,17 @@ export default {
     },
     submit() {
       this.errors = {};
-      master
+      this.$c_master
         .put(`data/${this.data._index}/${this.data._id}`, this.form_data)
         .then(response => {
+          this.loading = false;
           this.$message.success("修改成功");
           this.$emit("update_item", this.form_data);
           this.on_close();
         })
-        .catch(exc => {
-          console.log("exc.reponse:", exc.response);
-          if (exc.response && exc.response.data) {
-            if (exc.response.data.detail) {
-              this.$message.error(exc.response.data.detail);
-              return;
-            }
-            this.errors = exc.response.data;
-            return;
-          }
-          console.log(exc.message);
+        .catch(error => {
+          this.loading = false;
+          this.errors = error.response.data;
         });
     }
   }

@@ -1,7 +1,7 @@
 <template>
   <el-dialog :title="`向 ${table_name} 添加记录`" :visible.sync="is_visible" @close="on_close">
     <el-form label-width="120px" size="small" style="margin-right: 50px">
-      <el-form-item v-for="(v, k) in fields" v-if="k[0]!='S'" :key="k" :label="`${k}:`" :required="v.required" :error="(errors[k])?String(errors[k]):''">
+      <el-form-item v-for="(v, k) in fields" v-if="k[0]!='S'" :key="k" :label="`${k}:`" :required="v.required" :error="errors[k]|c_array_to_string">
         <c-select v-if="v.type=='list'" v-model="form_data[k]" :placeholder="`${v.label?v.label:k} | type:${v.type}/${v.child.type}`" multiple filterable allow-create default-first-option remote style="width: 100%">
         </c-select>
         <el-input v-else v-model="form_data[k]" :placeholder="`${v.label?v.label:k} | type:${v.type}`"></el-input>
@@ -51,8 +51,9 @@ export default {
           this.$emit("add_item", response.data._id);
           this.on_close();
         })
-        .catch(exc => {
+        .catch(error => {
           this.loading = false;
+          this.errors = error.response.data;
         });
     }
   }
