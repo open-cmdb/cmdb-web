@@ -131,7 +131,7 @@ export default {
           .post("mgmt/table", this.form_data)
           .then(response => {
             this.loading = false;
-            this.$message.success("添加成功");
+            this.$message.success("添加成功 请重启服务器");
             this.errors = {};
             this.$emit("add_table", response.data);
             this.on_close();
