@@ -7,7 +7,7 @@
         <el-input v-else v-model="form_data[k]" :placeholder="`${v.label?v.label:k} | type:${v.type}`"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" style="width: 100%" @click="submit()">提交</el-button>
+        <el-button type="primary" style="width: 100%" @click="submit()" :loading="loading">提交</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -20,6 +20,7 @@ export default {
   data() {
     return {
       is_visible: true,
+      loading: false,
       form_data: {},
       fields: [],
       errors: {}
@@ -40,25 +41,18 @@ export default {
       this.$destroy();
     },
     submit() {
-      master
+      this.loading = true;
+      this.$c_master
         .post(`data/${this.table_name}`, this.form_data)
         .then(response => {
+          this.loading = false;
           this.$message.success("添加成功");
           this.errors = {};
           this.$emit("add_item", response.data._id);
           this.on_close();
         })
         .catch(exc => {
-          console.log("exc.reponse:", exc.response);
-          if (exc.response && exc.response.data) {
-            if (exc.response.data.detail) {
-              this.$message.error(exc.response.data.detail);
-              return;
-            }
-            this.errors = exc.response.data;
-            return;
-          }
-          console.log(exc.message);
+          this.loading = false;
         });
     }
   }
