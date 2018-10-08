@@ -8,7 +8,7 @@
         <el-input v-else v-model="form_data[k]" :placeholder="`${v.label?v.label:k} | type:${v.type}`"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" style="width: 100%" @click="submit()" :loading="submit_loading">提交</el-button>
+        <el-button type="primary" style="width: 100%" @click="submit()" :loading="submit_loading">提&nbsp;&nbsp;交</el-button>
       </el-form-item>
     </el-form>
     </div>

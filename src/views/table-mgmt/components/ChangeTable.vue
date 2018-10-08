@@ -55,7 +55,7 @@
     </div>
     <el-form label-width="60px" style="margin-right: 30px">
       <el-form-item>
-        <el-button size="small" style="width: 100%" type="primary" :loading="loading" @click="on_submit">提交</el-button>
+        <el-button size="small" style="width: 100%" type="primary" :loading="loading" @click="on_submit">提&nbsp;&nbsp;&nbsp;&nbsp;交</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -131,7 +131,7 @@ export default {
           .post("mgmt/table", this.form_data)
           .then(response => {
             this.loading = false;
-            this.$message.success("添加成功 请重启服务器");
+            this.$message.success("添加成功 请重启后端服务");
             this.errors = {};
             this.$emit("add_table", response.data);
             this.on_close();

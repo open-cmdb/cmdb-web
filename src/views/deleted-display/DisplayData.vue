@@ -2,7 +2,7 @@
   <div>
     <div>
       <el-autocomplete id="search_input" ref="search_input" :autofocus="is_focus" :trigger-on-focus="false" :suffix-icon="search_input_icon" @focus="on_focus" :fetch-suggestions="history_filter" select-when-unmatched @keyup.enter.native="on_search()" placeholder="示例：(hostname:huawei* AND price:[20000 TO 40000]) 更多请参阅Lucene语法" v-model="query" style="width: 100%" class="demo-autocomplete">
-        <el-select v-model="indices" style="width: 200px" slot="prepend" multiple filterable default-first-option placeholder="选择表 默认：all">
+        <el-select v-model="indices" style="width: 250px" slot="prepend" multiple filterable default-first-option placeholder="选择表 默认：all">
           <el-option style="padding: 10px; display: flex; align-items: center; justify-content: space-between" v-for="item in tables" :key="item.id" :label="item.name" :value="item.name">
             <span>{{ item.name }}</span>
             <div>
@@ -14,7 +14,8 @@
         <el-button id="submit" @click="on_search()" slot="append" :loading="loading" icon="el-icon-search"></el-button>
       </el-autocomplete>
     </div>
-    <div style="border: 1px #DCDFE6 solid; margin: 10px 0px" v-loading="loading">
+    <!-- <div style="border: 1px #DCDFE6 solid; margin: 10px 0px" v-loading="loading"> -->
+    <div style="border: 1px #DCDFE6 solid; margin: 10px 0px; width: 100%; overflow-x: auto" v-loading="loading">
       <data-item v-for="item in data" :data="item" :key="item._id" v-on:delete_data="delete_data"></data-item>
     </div>
     <el-pagination style="float: right; margin-right: 100px;" background layout="total, prev, pager, next" :page-size="page_size" :total="total_num" :current-page.sync="current_page" @current-change="on_page_change">
@@ -82,7 +83,7 @@ export default {
     this.page_size = page_size > 8 ? page_size : 8;
     this.get_history();
     master
-      .get("mgmt/table", { params: { page_size: 100 } })
+      .get("mgmt/table", { params: { page_size: 100, has_read_perms: true } })
       .then(response => {
         this.tables = response.data.results;
       })
@@ -144,7 +145,7 @@ export default {
       this.loading = true;
       master
         .post(
-          "search/deleted-data",
+          "search/deleted-data-lucene",
           { indices, query, page, page_size },
           { cancelToken: source.token }
         )
@@ -162,10 +163,6 @@ export default {
           this.loading = false;
           console.log("error:", error);
           this.search_input_icon = "el-icon-edit";
-          if (error.response && error.response.data) {
-            self.$message.error(JSON.stringify(error.response.data));
-          }
-          console.log("error message: ", error.message);
         });
     },
     on_search() {

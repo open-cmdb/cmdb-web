@@ -28,4 +28,4 @@ if __name__ == '__main__':
   run_cmd("cp -r django-static/* dist/static")
   run_cmd("git add *")
   run_cmd("git commit -m {}".format(msg))
-  run_cmd("git push gitee {}".format(current_branch))
+  run_cmd("git push origin {}".format(current_branch))

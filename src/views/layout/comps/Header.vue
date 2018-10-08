@@ -1,19 +1,21 @@
 <template>
-  <div style="background-color: #62A5F3; padding: 0px 20px; display: flex; align-items: center; justify-content: space-between; height: 80px">
+  <div style="background-color: #409EFF; padding: 0px 20px; display: flex; align-items: center; justify-content: space-between; height: 80px">
     <div>
-      <img src="@/assets/logo.png" style="height: 100%; display: inline-block; box-sizing: border-box; vertical-align: middle;" />
-      <span style="margin-left: 6px; font-family: Montserrat-Regular; letter-spacing:2px; font-weight: 500; color: #FFFFFF; font-size: 26px; height: 100%; display: inline-block; box-sizing: border-box; vertical-align: middle;">CMDB</span>
+      <!-- <img src="@/assets/logo.png" style="height: 100%; display: inline-block; box-sizing: border-box; vertical-align: middle;" /> -->
+      <span style="margin-left: 50px; font-family: Montserrat-Regular; letter-spacing:2px; font-weight: 800; color: #FFFFFF; font-size: 36px; height: 100%; display: inline-block; box-sizing: border-box; vertical-align: middle;">CMDB</span>
     </div>
     <div>
       <ul class="c_ul">
         <li class="c_li" @click="on_open_api_docs">
           <i class="fa fa-file-text" aria-hidden="true" style="margin-right: 5px"></i>API文档</li>
-        <li class="c_li" @click="on_help">
+        <li class="c_li" @click="open_url('https://zhuanlan.zhihu.com/p/34191320')">
           <i class="fa fa-question-circle" aria-hidden="true" style="margin-right: 5px"></i>帮助</li>
-        <li class="c_li" @click="is_dialog_spit_slot = true">
+        <li class="c_li" @click="open_url('https://github.com/open-cmdb/cmdb')">
+          <i class="fa fa-code" aria-hidden="true" style="margin-right: 5px"></i>源代码</li>
+        <li class="c_li" @click="open_url('https://github.com/open-cmdb/cmdb/issues')">
           <i class="fa fa-comment" aria-hidden="true" style="margin-right: 5px"></i>我要吐槽</li>
-        <li class="c_li" @click="is_dialog_about = true">
-          <i class="fa fa-info-circle" aria-hidden="true" style="margin-right: 5px"></i>关于</li>
+        <!-- <li class="c_li" @click="is_dialog_about = true">
+          <i class="fa fa-info-circle" aria-hidden="true" style="margin-right: 5px"></i>关于</li> -->
         <li class="c_li">
           <el-dropdown style="">
             <span class="el-dropdown-link" style="font-size: 16px; color: #FFF">
@@ -21,17 +23,21 @@
               <i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item :disabled="user_info.username==undefined?true:false">
+              <!-- <el-dropdown-item :disabled="user_info.username==undefined?true:false">
                 <span @click="is_dialog_token=true">
                   <i class="fa fa-key" aria-hidden="true"></i>Token</span>
+              </el-dropdown-item> -->
+              <el-dropdown-item>
+                <span style="width: 100%" @click="is_visible_update_password=true">
+                  <i class="fa fa-key" aria-hidden="true"></i>修改密码</span>
               </el-dropdown-item>
               <el-dropdown-item v-if="user_info.username">
                 <span style="width: 100%" @click="on_logout">
-                  <i class="fa fa-sign-out" aria-hidden="true"></i>退出</span>
+                  <i class="fa fa-sign-out" aria-hidden="true"></i>退 出</span>
               </el-dropdown-item>
               <el-dropdown-item v-else>
                 <span style="width: 100%" @click="on_login">
-                  <i class="fa fa-sign-in" aria-hidden="true"></i>登录</span>
+                  <i class="fa fa-sign-in" aria-hidden="true"></i>登 录</span>
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -50,18 +56,15 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="我要吐槽" :visible.sync="is_dialog_spit_slot" width="30%">
-      <span>钉钉搜索 tangmingming 对 就是最帅的那个 😝😝</span>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="is_dialog_spit_slot = false">知道了</el-button>
-      </span>
-    </el-dialog>
-
-    <el-dialog title="关于" :visible.sync="is_dialog_about" width="30%">
-      <span>哈罗单车 | Defensor</span>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="is_dialog_about = false">确 定</el-button>
-      </span>
+    <el-dialog width="700px" title="重置密码" :visible.sync="is_visible_update_password">
+      <el-form label-width="100px" style="margin-right: 50px">
+        <el-form-item label="新密码:" :error="form_errors.password" required>
+          <el-input type="password" v-model="form_data.password" autofocus @keydown.enter.native="on_submit_update_password(null)"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button style="width: 100%" type="primary" :loading="update_password_loading" @click="on_submit_update_password(null)">提交</el-button>
+        </el-form-item>
+      </el-form>
     </el-dialog>
   </div>
 </template>
@@ -77,7 +80,11 @@ export default {
       is_dialog_token: false,
       is_dialog_spit_slot: false,
       is_dialog_about: false,
-      token: "***********************************************************"
+      is_visible_update_password: false,
+      token: "***********************************************************",
+      update_password_loading: false,
+      form_data: {},
+      form_errors: {}
     };
   },
   mounted() {
@@ -111,11 +118,13 @@ export default {
           center: true
         })
         .then(() => {
-          this.$c_master.post("user/user/logout").then(response => {
-            this.user_info = {};
-            this.$store.state.user_info = {};
-            sso.login();
-          });
+          this.$store.commit("logout");
+          this.$router.push("login");
+          // this.$c_master.post("user/user/logout").then(response => {
+          //   this.user_info = {};
+          //   this.$store.state.user_info = {};
+          //   sso.login();
+          // });
         });
     },
     on_login() {
@@ -127,9 +136,27 @@ export default {
       window.open(api_url);
     },
     on_help() {
-      const api_url =
-        "http://wiki.cheyaoshicorp.com/pages/viewpage.action?pageId=33959573";
+      window.open("https://zhuanlan.zhihu.com/p/34191320");
+    },
+    on_spilt_() {
+      const api_url = "https://github.com/open-cmdb/cmdb/issues";
       window.open(api_url);
+    },
+    open_url(url) {
+      window.open(url);
+    },
+    on_submit_update_password() {
+      this.update_password_loading = true;
+      this.$c_master
+        .post("mgmt/user/update-password", this.form_data)
+        .then(response => {
+          this.update_password_loading = false;
+          this.is_visible_update_password = false;
+          this.$message.success("修改成功");
+        })
+        .catch(error => {
+          this.update_password_loading = false;
+        });
     }
   }
 };

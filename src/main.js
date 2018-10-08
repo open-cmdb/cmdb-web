@@ -2,15 +2,19 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import ElementUI from "element-ui"
-import VCharts from "v-charts"
+// import VCharts from "v-charts"
 import App from './App'
 import router from './router'
 import store from "./store"
 
+import upperFirst from 'lodash/upperFirst'
+import camelCase from 'lodash/camelCase'
 
-import '@/theme/index.css'
+
+// import '@/theme/index.css'
+import 'element-ui/lib/theme-chalk/index.css';
 import "font-awesome/css/font-awesome.min.css"
-import 'v-charts/lib/style.css'
+// import 'v-charts/lib/style.css'
 
 import c_filters from "@/utils/filters"
 import c_plugins from "@/utils/plugins"
@@ -19,12 +23,40 @@ import c_components from "@/utils/components"
 Vue.config.productionTip = false
 
 Vue.use(ElementUI)
-Vue.use(VCharts)
-Vue.use(VCharts)
+// Vue.use(VCharts)
 Vue.use(c_plugins)
 Vue.use(c_components)
 
-/* eslint-disable no-new */
+const requireComponent = require.context(
+  // 其组件目录的相对路径
+  './components',
+  // 是否查询其子目录
+  true,
+  // 匹配基础组件文件名的正则表达式
+  /[A-Z]\w+\.(vue|js)$/
+)
+
+requireComponent.keys().forEach(fileName => {
+  // 获取组件配置
+  const componentConfig = requireComponent(fileName)
+
+  // 获取组件的 PascalCase 命名
+  const componentName = upperFirst(
+    camelCase(
+      // 剥去文件名开头的 `./` 和结尾的扩展名
+      fileName.replace(/^\.\/(.*)\.\w+$/, '$1')
+    )
+  )
+  console.log("componentName: ", componentName)
+  // 全局注册组件
+  Vue.component(
+    componentName,
+    // 如果这个组件选项是通过 `export default` 导出的，
+    // 那么就会优先使用 `.default`，
+    // 否则回退到使用模块的根。
+    componentConfig.default || componentConfig
+  )
+})
 
 var app = new Vue({
   el: '#app',
@@ -46,7 +78,7 @@ import ChangeTable from "@/views/table-mgmt/components/ChangeTable"
 import DeleteTable from "@/views/table-mgmt/components/DeleteTable"
 import ResetPassword from "@/views/user/components/ResetPassword"
 import ChangePassword from "@/views/user/components/ChangePassword"
-import ChangeUser from "@/views/user-mgmt/components/ChangeUser"
+// import ChangeUser from "@/views/user-mgmt/components/ChangeUser"
 
 Vue.component("HistoricalRecord", HistoricalRecord)
 Vue.component("DataDetail", DataDetail)
@@ -57,5 +89,5 @@ Vue.component("DeletedDataDetail", DeletedDataDetail)
 Vue.component("ChangeTable", ChangeTable)
 Vue.component("DeleteTable", DeleteTable)
 Vue.component("ResetPassword", ResetPassword)
-Vue.component("ChangeUser", ChangeUser)
+// Vue.component("ChangeUser", ChangeUser)
 Vue.component("ChangePassword", ChangePassword)

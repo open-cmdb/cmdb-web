@@ -6,6 +6,8 @@ import cookie from "@/utils/cookie"
 
 import store from "@/store"
 
+
+var login_dialog_displayed = false;
 var local_token = localStorage.getItem("token")
 
 var token = cookie.get_cookie("token")
@@ -57,10 +59,9 @@ export const filter_out_list_empty_str = (data) => {
       continue
     }
     if (item === "") {
-      new_data.push(null)
-    } else {
-      new_data.push(item)
+      continue
     }
+    new_data.push(item)
   }
   return new_data
 }
@@ -68,6 +69,9 @@ export const filter_out_list_empty_str = (data) => {
 export const filter_out_empty_str = (data) => {
   var new_data = {};
   for (let i in data) {
+    if (typeof i === "string" && i.startsWith("__")) {
+      continue
+    }
     if (data[i] instanceof Array) {
       new_data[i] = filter_out_list_empty_str(data[i])
       continue
@@ -77,10 +81,9 @@ export const filter_out_empty_str = (data) => {
       continue
     }
     if (data[i] === "") {
-      new_data[i] = null;
-    } else {
-      new_data[i] = data[i];
+      continue
     }
+    new_data[i] = data[i];
   }
   return new_data;
 }
@@ -93,7 +96,7 @@ var master = axios.create({
 })
 
 master.interceptors.request.use(config => {
-  config.headers.token = token
+  config.headers.Authorization = store.state.token
   config.cancelToken = store.state.cancel_token.token
   config.data = filter_out_empty_str(config.data)
   return config
@@ -117,16 +120,39 @@ master.interceptors.response.use(response => {
     return Promise.reject(error)
   }
   if (error.response.status == 401) {
-    sso.login();
-    return;
+    store.state.token = null
+    console.log("app.$route.name:", app.$route.name)
+    localStorage.removeItem("token")
+    if (login_dialog_displayed || app.$route.name === "login") {
+      return Promise.reject(error)
+    }
+    login_dialog_displayed = true
+    app.$confirm('您的会话已过期', '前往登录？', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'info',
+      center: true
+    }).then(() => {
+      login_dialog_displayed = false
+      app.$router.push({ name: "login", query: { next_path: app.$route.fullPath } })
+    }).catch(() => {
+      login_dialog_displayed = false
+    });
+    return Promise.reject(error)
+  } else if (error.response.status >= 500) {
+    app.$message.error("服务器出错啦 请联系管理员")
+    return Promise.reject(error)
   }
   var data = error.response.data
   if (data.detail) {
     app.$message.error(data.detail)
+  } else if (data.non_field_errors) {
+    app.$message.error(String(data.non_field_errors).slice(0, 100))
   } else {
     app.$message.error(JSON.stringify(data).slice(0, 100))
   }
   return Promise.reject(error)
+
 })
 
 
