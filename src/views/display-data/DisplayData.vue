@@ -81,7 +81,7 @@ export default {
     this.page_size = page_size > 8 ? page_size : 8;
     this.get_history();
     master
-      .get("mgmt/table", { params: { page_size: 100, has_read_perm: true } })
+      .get("mgmt/table", { params: { page_size: 100, has_read_perms: true } })
       .then(response => {
         this.tables = response.data.results;
       })
