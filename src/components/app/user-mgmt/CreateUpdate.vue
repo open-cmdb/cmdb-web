@@ -10,6 +10,9 @@
       <el-form-item label="管理员:" :error="form_errors.is_staff">
         <el-checkbox v-model="form_data.is_staff"></el-checkbox>
       </el-form-item>
+      <el-form-item label="激活:" :error="form_errors.is_active">
+        <el-checkbox v-model="form_data.is_active"></el-checkbox>
+      </el-form-item>
       <el-form-item label="邮箱:" :error="form_errors.email">
         <el-input v-model="form_data.email"></el-input>
       </el-form-item>
@@ -26,7 +29,14 @@
 <script>
 import { dialog_mixin } from "@/utils/mixins";
 export default {
-  mixins: [dialog_mixin]
+  mixins: [dialog_mixin],
+  data() {
+    return {
+      form_data: {
+        active: true
+      }
+    };
+  }
 };
 </script>
 

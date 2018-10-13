@@ -12,9 +12,8 @@
       <el-table-column label="姓名" prop="name" show-overflow-tooltip>
       </el-table-column>
       <el-table-column label="管理员" prop="is_staff" :formatter="(row)=>String(row.is_staff)" show-overflow-tooltip>
-        <!-- <template slot-scope="scope">
-          <span>{{ scope.row.is_staff?'是':'否' }}</span>
-        </template> -->
+      </el-table-column>
+      <el-table-column label="激活" prop="is_active" :formatter="(row)=>String(row.is_active)" show-overflow-tooltip>
       </el-table-column>
       <el-table-column label="邮箱" prop="email" show-overflow-tooltip>
       </el-table-column>
