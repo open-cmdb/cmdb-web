@@ -33,7 +33,7 @@ export default {
   data() {
     return {
       form_data: {
-        active: true
+        is_active: true
       }
     };
   }

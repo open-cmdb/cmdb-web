@@ -23,7 +23,6 @@ if (token) {
 
 
 export var baseURL = window.location.protocol + "//" + window.location.host + "/api/v1/"
-// export const baseURL = process.env.NODE_ENV=="production"?window.location.protocol+"//"+window.location.host+"/api/v1/":"http://dev.work-order.hellobike.cn/api/v1/"
 
 export const params_serializer = (params) => {
   var param_list = []
