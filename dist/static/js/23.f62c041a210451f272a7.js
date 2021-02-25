@@ -1,0 +1,2 @@
+webpackJsonp([23],{YrTf:function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var i={render:function(){this.$createElement;this._self._c;return this._m(0)},staticRenderFns:[function(){var e=this.$createElement,t=this._self._c||e;return t("div",[t("p",[this._v("dialog2")])])}]};var r=n("VU/8")({name:"dialog2"},i,!1,function(e){n("pgyX")},"data-v-0fde6146",null);t.default=r.exports},pgyX:function(e,t){}});
+//# sourceMappingURL=23.f62c041a210451f272a7.js.map

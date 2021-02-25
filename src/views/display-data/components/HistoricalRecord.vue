@@ -1,9 +1,9 @@
 <template>
   <el-dialog width="1000px" :title="`${data_index} ${data_id} 历史版本`" :visible.sync="is_visible" @close="on_close">
     <el-table v-if="data.length > 0" :data="data" :max-height="max_height" stripe>
-      <el-table-column prop="S-changer" label="修改者" fixed></el-table-column>
-      <el-table-column prop="S-update-time" label="修改时间" fixed></el-table-column>
-      <el-table-column v-for="(value, key) in data[0]" v-if="key[0] != 'S'" :label="key" :key="key">
+      <el-table-column prop="_changer" label="修改者" fixed></el-table-column>
+      <el-table-column prop="_update_time" label="修改时间" fixed></el-table-column>
+      <el-table-column v-for="(value, key) in data[0]" v-if="key[0] != '_'" :label="key" :key="key">
         <template slot-scope="scope">
           <span :style="{color: value==null ? '#C0C4CC':'#606266'}">{{ scope.row[key]==null?'null':scope.row[key] }}</span>
         </template>

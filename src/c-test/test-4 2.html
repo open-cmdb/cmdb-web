@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test 4</title>
+  <style>
+    .wrap {
+      position: relative;
+    }
+
+    .one{
+      width: 40px;
+      background: blue;
+    }
+
+    .two {
+      background: yellow;
+    }
+
+    .three {
+      width: 40px;
+      background: red;
+    }
+
+    .col-3-one {
+      position: absolute;
+      left: 0px;
+    }
+
+    .col-3-three {
+      position: absolute;
+      right: 0px;
+    }
+
+    .col-3-two {
+      position: static;
+      margin-left: 40px;
+      margin-right: 40px;
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div>三列布局1</div>
+  <div class="one col-3-one">one</div>
+  <div class="three col-3-three">three</div>
+  <div class="two col-3-two">two</div>
+</div>
+</body>
+</html>

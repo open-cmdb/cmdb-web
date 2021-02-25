@@ -1,16 +1,16 @@
 <template>
   <el-dialog width="900px" :title="`${data['_index']} ${data['_id']} 详细信息`" :visible.sync="is_visible" @close="on_close">
     <div>
-      <span class="label">创建者:</span>{{ data['_source']["S-creator"]}}
+      <span class="label">创建者:</span>{{ data['_source']["_creator"]}}
     </div>
     <div>
-      <span class="label">创建时间:</span>{{ data['_source']["S-creation-time"]}}
+      <span class="label">创建时间:</span>{{ data['_source']["_create_time"]}}
     </div>
     <div>
-      <span class="label">删除者:</span>{{ data['_source']["S-delete-people"]}}
+      <span class="label">删除者:</span>{{ data['_source']["_delete_people"]}}
     </div>
     <div>
-      <span class="label">删除时间:</span>{{ data['_source']["S-delete-time"]}}
+      <span class="label">删除时间:</span>{{ data['_source']["_delete_time"]}}
     </div>
     <div v-for="(v, k, index) in data['_source']" v-if="k[0] != 'S'" :key="index">
       <span class="label">{{ k }}:</span>{{ v }}

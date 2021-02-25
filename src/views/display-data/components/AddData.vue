@@ -1,8 +1,8 @@
 <template>
-  <el-dialog :title="`向 ${table_name} 添加记录`" :visible.sync="is_visible" @close="on_close">
+  <el-dialog :title="`向 ${table_name} 添加记录`" :visible.sync="is_visible" @close="on_close(true)">
     <div v-loading="loading">
     <el-form label-width="120px" size="small" style="margin-right: 50px">
-      <el-form-item v-for="(v, k) in fields" v-if="k[0]!='S'" :key="k" :label="`${k}:`" :required="v.required" :error="errors[k]|c_array_to_string">
+      <el-form-item v-for="(v, k) in fields" v-if="k[0]!='_'" :key="k" :label="`${k}:`" :required="v.required" :error="errors[k]|c_array_to_string">
         <c-select v-if="v.type=='list'" v-model="form_data[k]" :placeholder="`${v.label?v.label:k} | type:${v.type}/${v.child.type}`" multiple filterable allow-create default-first-option remote style="width: 100%">
         </c-select>
         <el-input v-else v-model="form_data[k]" :placeholder="`${v.label?v.label:k} | type:${v.type}`"></el-input>
@@ -18,7 +18,10 @@
 <script>
 import master from "@/api";
 import master_2 from "@/api";
+import df_admin from "df-admin"
+
 export default {
+  mixins: [df_admin.mixins.dialog_mixin],
   data() {
     return {
       is_visible: true,
@@ -41,10 +44,10 @@ export default {
       .catch(error => {});
   },
   methods: {
-    on_close() {
-      this.$el.parentNode.removeChild(this.$el);
-      this.$destroy();
-    },
+    // on_close() {
+    //   this.$el.parentNode.removeChild(this.$el);
+    //   this.$destroy();
+    // },
     submit() {
       this.submit_loading = true;
       this.$c_master

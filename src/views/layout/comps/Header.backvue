@@ -1,0 +1,189 @@
+<template>
+  <div style="background-color: #409EFF; padding: 0px 20px; display: flex; align-items: center; justify-content: space-between; height: 80px">
+    <div>
+      <!-- <img src="@/assets/logo.png" style="height: 100%; display: inline-block; box-sizing: border-box; vertical-align: middle;" /> -->
+      <span style="margin-left: 50px; font-family: Montserrat-Regular; letter-spacing:2px; font-weight: 800; color: #FFFFFF; font-size: 36px; height: 100%; display: inline-block; box-sizing: border-box; vertical-align: middle;">CMDB</span>
+    </div>
+
+    <el-menu class="el-menu-vertical-demo" mode="horizontal" :default-active="$route.name" @select="on_select">
+      <c-menu-item v-for="(item, index) in $store.state.filtered_menu" :key="index" :item="item">
+      </c-menu-item>
+    </el-menu>
+    <div>
+      <ul class="c_ul">
+        <li class="c_li" @click="on_open_api_docs">
+          <i class="fa fa-file-text" aria-hidden="true" style="margin-right: 5px"></i>API文档</li>
+        <li class="c_li" @click="open_url('https://zhuanlan.zhihu.com/p/34191320')">
+          <i class="fa fa-question-circle" aria-hidden="true" style="margin-right: 5px"></i>帮助</li>
+        <li class="c_li" @click="open_url('https://github.com/open-cmdb/cmdb')">
+          <i class="fa fa-code" aria-hidden="true" style="margin-right: 5px"></i>源代码</li>
+        <li class="c_li" @click="open_url('https://github.com/open-cmdb/cmdb/issues')">
+          <i class="fa fa-comment" aria-hidden="true" style="margin-right: 5px"></i>我要吐槽</li>
+        <!-- <li class="c_li" @click="is_dialog_about = true">
+          <i class="fa fa-info-circle" aria-hidden="true" style="margin-right: 5px"></i>关于</li> -->
+        <li class="c_li">
+          <el-dropdown style="">
+            <span class="el-dropdown-link" style="font-size: 16px; color: #FFF">
+              <i class="fa fa-user-circle-o" style="margin-right: 5px"></i>{{ user_info.name ? user_info.name: "未登录" }}
+              <i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <!-- <el-dropdown-item :disabled="user_info.username==undefined?true:false">
+                <span @click="is_dialog_token=true">
+                  <i class="fa fa-key" aria-hidden="true"></i>Token</span>
+              </el-dropdown-item> -->
+              <el-dropdown-item>
+                <span style="width: 100%" @click="is_visible_update_password=true">
+                  <i class="fa fa-key" aria-hidden="true"></i>修改密码</span>
+              </el-dropdown-item>
+              <el-dropdown-item v-if="user_info.username">
+                <span style="width: 100%" @click="on_logout">
+                  <i class="fa fa-sign-out" aria-hidden="true"></i>退 出</span>
+              </el-dropdown-item>
+              <el-dropdown-item v-else>
+                <span style="width: 100%" @click="on_login">
+                  <i class="fa fa-sign-in" aria-hidden="true"></i>登 录</span>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </li>
+      </ul>
+    </div>
+    <el-dialog title="查看API Token" :visible.sync="is_dialog_token" width="600px">
+      <el-alert title="请妥善保存您的API Token" :closable="false" type="warning">
+      </el-alert>
+      <div style="padding: 0px 20px; padding-top: 20px">
+        <span>{{ token }}</span>
+        <i style="float: right; line-height: 24px" class="fa fa-eye fa-lg" aria-hidden="true" @click="get_token"></i>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="is_dialog_token = false">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog width="700px" title="重置密码" :visible.sync="is_visible_update_password">
+      <el-form label-width="100px" style="margin-right: 50px">
+        <el-form-item label="新密码:" :error="form_errors.password" required>
+          <el-input type="password" v-model="form_data.password" autofocus @keydown.enter.native="on_submit_update_password(null)"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button style="width: 100%" type="primary" :loading="update_password_loading" @click="on_submit_update_password(null)">提交</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import sso from "@/utils/sso";
+import app from "@/main";
+import CMenuItem from "./MenuItem";
+
+export default {
+  components: {
+    CMenuItem
+  },
+  name: "Header",
+  data() {
+    return {
+      user_info: {},
+      is_dialog_token: false,
+      is_dialog_spit_slot: false,
+      is_dialog_about: false,
+      is_visible_update_password: false,
+      token: "***********************************************************",
+      update_password_loading: false,
+      form_data: {},
+      form_errors: {}
+    };
+  },
+  mounted() {
+    // this.get_data()
+    this.user_info = this.$store.state.user_info;
+  },
+  methods: {
+    get_data() {
+      this.$c_master
+        .get("user/user/info")
+        .then(response => {
+          this.user_info = response.data;
+          this.$store.state.user_info = response.data;
+        })
+        .catch(error => {});
+    },
+    get_token() {
+      this.$c_master
+        .get("user/user/token")
+        .then(response => {
+          this.token = response.data.token;
+        })
+        .catch(error => {});
+    },
+    on_logout() {
+      app
+        .$confirm("确认退出", "退出", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "info",
+          center: true
+        })
+        .then(() => {
+          this.$store.commit("logout");
+          this.$router.push("login");
+          // this.$c_master.post("user/user/logout").then(response => {
+          //   this.user_info = {};
+          //   this.$store.state.user_info = {};
+          //   sso.login();
+          // });
+        });
+    },
+    on_login() {
+      sso.login();
+    },
+    on_open_api_docs() {
+      const api_url =
+        window.location.protocol + "//" + window.location.host + "/api-docs";
+      window.open(api_url);
+    },
+    on_help() {
+      window.open("https://zhuanlan.zhihu.com/p/34191320");
+    },
+    on_spilt_() {
+      const api_url = "https://github.com/open-cmdb/cmdb/issues";
+      window.open(api_url);
+    },
+    open_url(url) {
+      window.open(url);
+    },
+    on_select(key, path) {
+      this.$router.push({ name: key });
+    },
+    on_submit_update_password() {
+      this.update_password_loading = true;
+      this.$c_master
+        .post("mgmt/user/update-password", this.form_data)
+        .then(response => {
+          this.update_password_loading = false;
+          this.is_visible_update_password = false;
+          this.$message.success("修改成功");
+        })
+        .catch(error => {
+          this.update_password_loading = false;
+        });
+    }
+  }
+};
+</script>
+
+<style scoped>
+.c_ul {
+  white-space: nowrap;
+  color: #ffffff;
+  font-size: 14px;
+}
+.c_li {
+  display: inline-block;
+  padding: 0px 14px;
+  cursor: pointer;
+}
+</style>

@@ -1,6 +1,20 @@
 <template>
   <div style="height: 100%; display: flex">
-    <el-menu class="el-menu-vertical-demo" style="height: 100%; display: inline-block" :default-active="$route.name" @select="on_select" :collapse="is_collapse">
+    <el-menu class="el-menu-vertical-demo" style="height: 100%; display: inline-block; overflow: auto" :default-active="$route.name" @select="on_select" :collapse="is_collapse">
+      <c-menu-item v-for="(item, index) in $store.state.filtered_menu" :key="index" :item="item">
+      </c-menu-item>
+      <c-menu-item v-for="(item, index) in $store.state.filtered_menu" :key="index" :item="item">
+      </c-menu-item>
+      <c-menu-item v-for="(item, index) in $store.state.filtered_menu" :key="index" :item="item">
+      </c-menu-item>
+      <c-menu-item v-for="(item, index) in $store.state.filtered_menu" :key="index" :item="item">
+      </c-menu-item>
+      <c-menu-item v-for="(item, index) in $store.state.filtered_menu" :key="index" :item="item">
+      </c-menu-item>
+      <c-menu-item v-for="(item, index) in $store.state.filtered_menu" :key="index" :item="item">
+      </c-menu-item>
+      <c-menu-item v-for="(item, index) in $store.state.filtered_menu" :key="index" :item="item">
+      </c-menu-item>
       <c-menu-item v-for="(item, index) in $store.state.filtered_menu" :key="index" :item="item">
       </c-menu-item>
     </el-menu>
@@ -11,7 +25,7 @@
 </template>
 
 <script>
-import CMenuItem from "./MenuItem";
+import CMenuItem from "../../display-data/components/MenuItem";
 export default {
   name: "Aside",
   data() {

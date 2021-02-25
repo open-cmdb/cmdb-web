@@ -6,9 +6,13 @@ import ElementUI from "element-ui"
 import App from './App'
 import router from './router'
 import store from "./store"
+import df_admin from "df-admin"
 
 import upperFirst from 'lodash/upperFirst'
 import camelCase from 'lodash/camelCase'
+
+import api from "@/api";
+
 
 
 // import '@/theme/index.css'
@@ -26,6 +30,8 @@ Vue.use(ElementUI)
 // Vue.use(VCharts)
 Vue.use(c_plugins)
 Vue.use(c_components)
+
+Vue.use(df_admin, api)
 
 const requireComponent = require.context(
   // 其组件目录的相对路径
@@ -57,6 +63,31 @@ requireComponent.keys().forEach(fileName => {
     componentConfig.default || componentConfig
   )
 })
+
+const require_views_component = require.context(
+  './views',
+  true,
+  /[A-Z]\w+\.(vue|js)$/
+)
+
+require_views_component.keys().forEach(file_name => {
+  if (file_name.split("/").length != 4 || file_name.split("/")[2] != "components") {
+    return
+  }
+  const component_config = require_views_component(file_name)
+  var component_name = upperFirst(
+    camelCase(
+      file_name.replace(/^\.\/(.*)\.\w+$/, '$1')
+    )
+  )
+  component_name = "L" + component_name.split("Components")[0] + component_name.split("Components")[1]
+  console.log("component_name", component_name)
+  Vue.component(
+    component_name,
+    component_config.default
+  )
+})
+
 
 var app = new Vue({
   el: '#app',

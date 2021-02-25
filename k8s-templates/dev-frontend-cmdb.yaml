@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-cmdb-web
+  namespace: dev-cmdb
+  labels:
+    app: dev-cmdb-web
+spec:
+  selector:
+    matchLabels:
+      name: dev-cmdb-web
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        name: dev-cmdb-web
+        app-version: "<VERSION>"
+    spec:
+      # securityContext:
+      #   runAsUser: 472
+      #   fsGroup: 472
+      containers:
+      - name: dev-cmdb-web
+        image: devops-registry-vpc.cn-shanghai.cr.aliyuncs.com/ipfsforce/devops/dev-cmdb-frontend:<VERSION>
+        ports:
+        - containerPort: 80
+          name: dev-cmdb-web
+        volumeMounts:
+          - name: nginx-conf
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: app-cmdb-frontend-nginx-conf
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: dev-cmdb-web
+  namespace: dev-cmdb
+spec:
+  selector:
+    name: dev-cmdb-web
+  ports:
+  - port: 80
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: dev-cmdb-web
+  namespace: dev-cmdb
+  annotations:
+spec:
+  rules:
+  - host: dev-cmdb.ops.ipfsyuanli.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: dev-cmdb-web
+          servicePort: 80

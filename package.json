@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^0.17.1",
     "babel-polyfill": "^6.26.0",
+    "df-admin": "^1.4.2",
     "element-ui": "^2.4.4",
     "font-awesome": "^4.7.0",
     "lodash": "^4.17.11",

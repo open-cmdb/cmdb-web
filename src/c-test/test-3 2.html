@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test-3</title>
+  <style type="text/css">
+    body, html {
+      margin: 0px;
+    }
+    #header {
+      background: blue;
+      height: 100px;
+      width: 100%;
+      position:relative; /*父div的位置设置成相对的*/
+    }
+    #h_menu {
+      width:100%;
+      height:50px;
+      background:yellow;
+      /*而子div的位置设置成绝对的，并且下边缘设为0*/
+      position:absolute;
+      bottom:0;
+    }
+    .left {
+      width: 15%;    /*这里是百分比或者像素值，对应下面的center就是百分比或者像素值*/
+      height: 200px;
+      background: red;
+      float: left;
+    }
+    .right {
+      width: 15%;  /*这里是百分比或者像素值，对应下面的center就是百分比或者像素值*/
+      height: 200px;
+      background: pink;
+      float: right;
+    }
+    .center {
+      height: 200px;
+      background: green;
+      /*两种方式均可（一）margin(二)margin-left、margin-right*/
+      /*（一）、用这种方式上面的left和right中的width是百分比或者像素值都可以*/
+      margin: auto;
+      /*(二)、这里是百分比或者像素值，对应上面的left、right中的width就是百分比或者像素值*/
+      /*margin-left:15%;
+      margin-right:15%;*/
+    }
+    #footer {
+      background: blue;
+      height: 100px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<div>
+  <!--<div id="header">-->
+    <!--上-->
+    <!--<div id="h_menu">-->
+      <!--上_底-->
+    <!--</div>-->
+  <!--</div>-->
+  <div id="middle">
+    <div class="left">
+      中左
+    </div>
+    <div class="right">
+      中右
+    </div>
+    <div class="center">
+      中间
+    </div>
+  </div>
+  <!--<div id="footer">-->
+    <!--下-->
+  <!--</div>-->
+</div>
+</body>
+</html>
